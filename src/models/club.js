@@ -1,6 +1,6 @@
-import { Schema, model } from "mongoose";
+const mongoose = require("mongoose");
 
-const clubSchema = Schema(
+const clubSchema = mongoose.Schema(
   {
     password: {
       type: String,
@@ -24,7 +24,7 @@ const clubSchema = Schema(
     },
     clubType: {
       type: String,
-      enum: ["Technical", "Non-technical", "NGO"],
+      enum: ["Technical", "Non-Technical", "NGO"],
       default: "Technical",
     },
     description: {
@@ -51,9 +51,10 @@ const clubSchema = Schema(
     backdrop: {
       type: String,
     },
+    isVerified: { type: Boolean, default: false },
     events: [
       {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Event",
       },
     ],
@@ -61,4 +62,4 @@ const clubSchema = Schema(
   { timestamps: true }
 );
 
-export default model("Club", clubSchema);
+module.exports = mongoose.model("Club", clubSchema);

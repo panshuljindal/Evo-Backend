@@ -1,13 +1,17 @@
-const User = require("../../models/user");
-const Login = require("../../models/logins");
-const Reset = require("../../models/reset");
+const Club = require("../../models/club");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const express = require("express");
 const { error } = require("console");
 const app = express();
-var getIP = require("ipware")().get_ip;
 const mailgun = require("mailgun-js");
+require("dotenv").config();
+const cloudinary = require("cloudinary").v2;
+cloudinary.config({
+  cloud_name: "dvmabxibf",
+  api_key: "793629593537419",
+  api_secret: "VblfV559irzcN4GqGGjhtihDlAg",
+});
 
 async function signupFunction(req, res, next) {
   //firstly salt the hashing for the password
@@ -15,11 +19,11 @@ async function signupFunction(req, res, next) {
   const salt = await bcrypt.genSalt(10);
   //hash the password
   hashedpassword = await bcrypt.hash(req.body.password, salt);
-  everify = await bcrypt.hash(req.body.email + Date.now(), salt);
-
-  const emailAlreadyExists = await User.findOne({ email: req.body.email });
+  const emailAlreadyExists = await Club.findOne({ email: req.body.email });
 
   var flag = 0;
+  var backdrop = "";
+  var logo = "";
   if (emailAlreadyExists && req.body.email !== undefined) {
     res.status(400).json({
       success: false,
@@ -27,33 +31,37 @@ async function signupFunction(req, res, next) {
     });
     flag++;
   }
-
-  async function titleCase(string) {
-    var sentence = string.toLowerCase().split(" ");
-    for (var i = 0; i < sentence.length; i++) {
-      sentence[i] = sentence[i][0].toUpperCase() + sentence[i].slice(1);
-    }
-    return sentence.join(" ");
-  }
-
-  const userData = {
+  if (req.body.logo && req.body.logo.length != 0)
+    await cloudinary.uploader.upload(
+      "data:image/jpeg;base64," + req.body.logo,
+      function (error, result) {
+        if (result) logo = result.url;
+        else flag++;
+      }
+    );
+  if (req.body.backdrop && req.body.backdrop.length != 0)
+    await cloudinary.uploader.upload(
+      "data:image/jpeg;base64," + req.body.backdrop,
+      function (error, result) {
+        if (result) backdrop = result.url;
+        else flag++;
+      }
+    );
+  const clubData = {
     ...req.body,
     password: hashedpassword,
-    name: await titleCase(req.body.name),
-    everify: everify,
+    logo: logo,
+    backdrop: backdrop,
   };
-
-  {
-    var user = new User({
-      ...userData,
-    });
-  }
+  var club = new Club({
+    ...clubData,
+  });
 
   try {
     if (flag == 0) {
-      const userSignup = await user.save();
+      const clubSignup = await club.save();
       const payload = {
-        _id: userSignup._id,
+        _id: clubSignup._id,
       };
 
       //creating jwt token
@@ -63,40 +71,12 @@ async function signupFunction(req, res, next) {
         { expiresIn: 600 },
         (err, token) => {
           if (err) {
-            console.log(err);
+            res.status(400).send({ Error: err });
           } else {
-            console.log(token);
+            res.status(200).send({ "auth-token": token });
           }
         }
       );
-
-      //MAILGUN PACKAGE
-
-      var api_key = process.env.MAILGUN_API_KEY;
-      var domain = process.env.MAILGUN_DOMAIN;
-      console.log(domain);
-      const mg = mailgun({ apiKey: api_key, domain: domain });
-
-      var data = {
-        from: "GlobalCert <me@samples.mailgun.org>",
-        to: req.body.email,
-        subject: "Email Verification",
-        html: `Click on the link to verify your account <a href='http://localhost:5500/user/verify/${userSignup.everify}'>Click Here</a>`,
-      };
-
-      mg.messages().send(data, function (error, body) {
-        if (error) {
-          console.log(error);
-          res.status(400).send({
-            message: "Error in sending Email!",
-          });
-        } else {
-          console.log("Email successfully sent!");
-          res.status(200).send({
-            message: "Email has been sent",
-          });
-        }
-      });
     }
   } catch (err) {
     console.log(err);
@@ -111,12 +91,12 @@ async function signupFunction(req, res, next) {
 async function loginFunction(req, res, next) {
   try {
     //check whether email exists
-    const user = await User.findOne({ email: req.body.email });
+    const club = await Club.findOne({ email: req.body.email });
     const checkpassword = await bcrypt.compare(
       req.body.password,
-      user.password
+      club.password
     );
-    if (!user) {
+    if (!club) {
       res.status(400).send({
         message: "Email not found!",
       });
@@ -129,19 +109,11 @@ async function loginFunction(req, res, next) {
       });
     } else {
       // create token and add it to the header file
-      const token = jwt.sign({ _id: user.id }, process.env.JWT_KEY, {
+      const token = jwt.sign({ _id: club._id }, process.env.JWT_KEY, {
         expiresIn: 6000,
       });
-      var logindata = {
-        logintime: Date.now(),
-        userid: user._id,
-        browser: req.headers["user-agent"],
-        ip: getIP(req).clientIp,
-      };
-      const login = new Login({ ...logindata });
-      var log = await login.save();
       res.header("auth-token", token).json({
-        Token: token,
+        token: token,
         message: "You have successfully logged in!",
       });
     }
@@ -154,7 +126,7 @@ async function loginFunction(req, res, next) {
 
 async function verifyEmail(req, res, next) {
   try {
-    await User.findOneAndUpdate(
+    await Club.findOneAndUpdate(
       { everify: req.params.everify },
       { isEmailVerified: true },
       (err, result) => {
@@ -169,13 +141,13 @@ async function verifyEmail(req, res, next) {
 }
 
 async function passwordReset(req, res, next) {
-  const user = await User.findOne({ email: req.body.email }).then(
-    async (user) => {
-      if (user == null) res.status(401).send({ message: "User not found!" });
+  const club = await Club.findOne({ email: req.body.email }).then(
+    async (club) => {
+      if (club == null) res.status(401).send({ message: "club not found!" });
       else {
         var resetdata = {
-          userid: user._id,
-          browser: req.headers["user-agent"],
+          clubid: club._id,
+          browser: req.headers["club-agent"],
           ip: getIP(req).clientIp,
           requestTime: Date.now(),
         };
@@ -183,9 +155,9 @@ async function passwordReset(req, res, next) {
         const reset = new Reset({ ...resetdata });
         const rest = await reset.save();
 
-        user.resetExpires = Date.now() + 300000;
+        club.resetExpires = Date.now() + 300000;
 
-        await user.save();
+        await club.save();
 
         var api_key = process.env.MAILGUN_API_KEY;
         var domain = process.env.MAILGUN_DOMAIN;
@@ -203,7 +175,7 @@ async function passwordReset(req, res, next) {
             console.log("Email successfully sent!");
             res.status(200).send({
               message: "Email has been sent",
-              everify: user.everify,
+              everify: club.everify,
             });
           } catch (error) {
             console.log(error);
@@ -226,7 +198,7 @@ async function updatePassword(req, res, next) {
       newpassword,
       salt
     ));
-    await User.findOneAndUpdate(
+    await Club.findOneAndUpdate(
       { everify: everify, resetExpires: { $gt: Date.now() } },
       { password: hashedpassword },
       function (err, result) {
@@ -242,7 +214,6 @@ async function updatePassword(req, res, next) {
     res.status(400).send({ err });
   }
 }
-
 
 module.exports = {
   signupFunction,

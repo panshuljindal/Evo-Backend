@@ -1,6 +1,6 @@
-import { Schema, model } from "mongoose";
+const mongoose = require("mongoose");
 
-const eventSchema = Schema(
+const eventSchema = mongoose.Schema(
   {
     info: { type: String },
     videoLink: { type: String },
@@ -14,7 +14,7 @@ const eventSchema = Schema(
       default: "Technical",
     },
     eventCost: { type: Number },
-    club: { type: Schema.Types.ObjectId, ref: "Club" },
+    club: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
     likes: { type: Number, default: 0 },
     startDate: { type: Date },
     startTime: { type: Date },
@@ -26,4 +26,4 @@ const eventSchema = Schema(
   { timestamps: true }
 );
 
-export default model("Event", eventSchema);
+module.exports=mongoose.model("Event", eventSchema);
