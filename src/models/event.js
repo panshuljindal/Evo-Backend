@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const eventSchema = mongoose.Schema(
   {
     info: { type: String },
+    clubName: { type: String },
     videoLink: { type: String },
     isPaid: { type: Boolean, default: false },
     isGravitas: { type: Boolean, default: false },
@@ -26,4 +27,4 @@ const eventSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports=mongoose.model("Event", eventSchema);
+module.exports = mongoose.model("Event", eventSchema);

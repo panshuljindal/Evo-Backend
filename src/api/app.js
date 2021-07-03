@@ -7,7 +7,7 @@ require("dotenv").config();
 app.use(express.static(path.join(__dirname, "../public")));
 
 const clubRoutes = require("./routes/clubRoutes.js");
-
+const eventRoutes = require("./routes/eventRoutes");
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
 // app.use(express.static('public'))
@@ -17,7 +17,7 @@ app.use(express.json({ limit: "50mb" }));
 
 //User Routes
 app.use("/club", clubRoutes);
-
+app.use("/events", eventRoutes);
 
 //error handling
 app.use((err, req, res, next) => {

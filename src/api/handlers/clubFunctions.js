@@ -8,9 +8,9 @@ const mailgun = require("mailgun-js");
 require("dotenv").config();
 const cloudinary = require("cloudinary").v2;
 cloudinary.config({
-  cloud_name: "dvmabxibf",
-  api_key: "793629593537419",
-  api_secret: "VblfV559irzcN4GqGGjhtihDlAg",
+  cloud_name: String(process.env.cloud_name),
+  api_key: String(process.env.api_key),
+  api_secret: String(process.env.api_secret),
 });
 
 async function signupFunction(req, res, next) {
@@ -62,21 +62,17 @@ async function signupFunction(req, res, next) {
       const clubSignup = await club.save();
       const payload = {
         _id: clubSignup._id,
+        name: clubSignup.name,
       };
 
       //creating jwt token
-      jwt.sign(
-        payload,
-        process.env.JWT_KEY,
-        { expiresIn: 600 },
-        (err, token) => {
-          if (err) {
-            res.status(400).send({ Error: err });
-          } else {
-            res.status(200).send({ "auth-token": token });
-          }
+      jwt.sign(payload, process.env.JWT_KEY, (err, token) => {
+        if (err) {
+          res.status(400).send({ Error: err });
+        } else {
+          res.status(200).send({ "auth-token": token });
         }
-      );
+      });
     }
   } catch (err) {
     console.log(err);
@@ -109,9 +105,13 @@ async function loginFunction(req, res, next) {
       });
     } else {
       // create token and add it to the header file
-      const token = jwt.sign({ _id: club._id }, process.env.JWT_KEY, {
-        expiresIn: 6000,
-      });
+      const token = jwt.sign(
+        { _id: club._id, name: club.name },
+        process.env.JWT_KEY,
+        {
+          expiresIn: 6000,
+        }
+      );
       res.header("auth-token", token).json({
         token: token,
         message: "You have successfully logged in!",
