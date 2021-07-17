@@ -14,6 +14,7 @@ app.set("views", path.join(__dirname, "../views"));
 
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //User Routes
 app.use("/club", clubRoutes);
