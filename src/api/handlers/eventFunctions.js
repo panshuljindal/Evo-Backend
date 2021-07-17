@@ -20,7 +20,7 @@ async function createEvent(req, res, next) {
       );
     let eventData = {
       ...req.body,
-      club: req.club._id,
+      clubId: req.club._id,
       poster: poster,
       clubName: req.club.name,
     };
@@ -38,11 +38,6 @@ async function createEvent(req, res, next) {
 async function getAllEvents(req, res, next) {
   try {
     var query = {};
-    //   "isPaid": true,
-    //   "isGravitas": false,
-    //   "isRiviera": false,
-    //   "isHack": true,
-    //   "eventType": "Technical",
     if (req.query.paid && req.query.paid.length != 0)
       query.isPaid = req.query.paid;
     if (req.query.gravitas && req.query.gravitas.length != 0)
@@ -53,10 +48,101 @@ async function getAllEvents(req, res, next) {
       query.isHack = req.query.hack;
     if (req.query.type && req.query.type.length != 0)
       query.eventType = req.query.type;
-    const events = await Event.find(query);
-    res.status(200).send(events);
+    if (req.query.club && req.query.club.length != 0)
+      query.club = req.query.club;
+    const events = await Event.find(query, {
+      name: 1,
+      poster: 1,
+      likes: 1,
+      clubId: 1,
+      clubName: 1,
+      eventType: 1,
+    })
+      .populate({ path: "clubId", select: "logo" })
+      .exec();
+    const metadata = await Event.aggregate([
+      { $group: { _id: "$eventType", count: { $sum: 1 } } },
+    ]);
+    res.status(200).send({ data: events, metadata: metadata });
   } catch (error) {
     res.status(500).send(error);
   }
 }
-module.exports = { createEvent, getAllEvents };
+
+async function likeEvent(req, res, next) {
+  try {
+    if (!req.body.eventId || req.body.eventId.length == 0) {
+      throw { error: "Please provide a valid event id" };
+    }
+    await Event.findByIdAndUpdate(req.body.eventId, { $inc: { likes: 1 } });
+    res.status(200).send({ message: "Likes updated!" });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+
+async function getPopularEvents(req, res, next) {
+  try {
+    // const events = await Event.find(
+    //   {},
+    //   {
+    //     name: 1,
+    //     poster: 1,
+    //     likes: 1,
+    //     timestamp: 1,
+    //     clubId: 1,
+    //     clubName: 1,
+    //     price: 1,
+    //     eventType: 1,
+    //   }
+    // )
+    //   .populate({ path: "clubId", select: "logo isPartner" })
+    //   .exec();
+    // const compiled = await events.aggregate([
+    //   { $group: { _id: "$eventType" } },
+    //   { $match: { isPartner: false } },
+    // ]);
+
+    const events = await Event.aggregate([
+      {
+        $lookup: {
+          from: "clubs",
+          localField: "clubId",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $match: { isPartner: true },
+          //   },
+          // ],
+          as: "club",
+        },
+      },
+      //       {
+      // $match:{club.isPartner:true}
+      //       },
+      {
+        $group: {
+          _id: "$eventType",
+          events: {
+            $push: {
+              name: "$name",
+              poster: "$poster",
+              likes: "$likes",
+              timestamp: "$timestamp",
+              clubId: "$clubId",
+              clubName: "$clubName",
+              price: "$price",
+              eventType: "$eventType",
+              clublogo: "$club.logo",
+            },
+          },
+        },
+      },
+    ]);
+    res.status(200).send(events);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+module.exports = { createEvent, getAllEvents, likeEvent, getPopularEvents };

@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 
 const eventSchema = mongoose.Schema(
   {
+    shortName: { type: String },
+    tagline: { type: String },
+    website: { type: String },
     info: { type: String },
+    name: { type: String, required: true },
     clubName: { type: String },
     videoLink: { type: String },
     isPaid: { type: Boolean, default: false },
@@ -11,14 +15,14 @@ const eventSchema = mongoose.Schema(
     isHack: { type: Boolean, default: false },
     eventType: {
       type: String,
-      enum: ["Technical", "Non-Technical"],
+      enum: ["Technical", "Non-Technical", "Cultural", "NGO"],
       default: "Technical",
     },
     eventCost: { type: Number },
-    club: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
+    clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
     likes: { type: Number, default: 0 },
-    startDate: { type: Date },
-    startTime: { type: Date },
+    timestamp: { type: Number },
+    duration: { type: Number },
     registrationLink: { type: String },
     meetingLink: { type: String },
     poster: { type: String },

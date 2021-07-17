@@ -52,6 +52,7 @@ const clubSchema = mongoose.Schema(
       type: String,
     },
     isVerified: { type: Boolean, default: false },
+    isPartner: { type: Boolean, default: false },
     events: [
       {
         type: mongoose.Schema.Types.ObjectId,
