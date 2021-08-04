@@ -2,6 +2,7 @@ const Club = require("../../models/club");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const express = require("express");
+const Combined = require("../../models/combined");
 const { error } = require("console");
 const app = express();
 const mailgun = require("mailgun-js");
@@ -66,13 +67,28 @@ async function signupFunction(req, res, next) {
       };
 
       //creating jwt token
+      let f = 0;
       jwt.sign(payload, process.env.JWT_KEY, (err, token) => {
         if (err) {
           res.status(400).send({ Error: err });
+          f++;
         } else {
           res.status(200).send({ "auth-token": token });
         }
       });
+      if (f == 0) {
+        let combinedData = {
+          poster: clubSignup.poster,
+          type: 1,
+          clubName: clubSignup.clubName,
+          clubId: clubSignup._id,
+          clubLogo: clubSignup.logo,
+          clubBackdrop: clubSignup.backdrop,
+          clubName: clubSignup.name,
+        };
+        const newObject = new Combined(combinedData);
+        await newObject.save();
+      }
     }
   } catch (err) {
     console.log(err);
@@ -214,6 +230,8 @@ async function updatePassword(req, res, next) {
     res.status(400).send({ err });
   }
 }
+
+
 
 module.exports = {
   signupFunction,
