@@ -39,6 +39,10 @@ const clubSchema = mongoose.Schema(
       type: String,
       default: "",
     },
+    facebook: {
+      type: String,
+      default: "",
+    },
     medium: {
       type: String,
       default: "",
