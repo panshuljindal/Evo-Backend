@@ -29,27 +29,35 @@ const clubSchema = mongoose.Schema(
     },
     description: {
       type: String,
+      default: "",
     },
     linkedIn: {
       type: String,
+      default: "",
     },
     instagram: {
       type: String,
+      default: "",
     },
     medium: {
       type: String,
+      default: "",
     },
     youtube: {
       type: String,
+      default: "",
     },
     twitter: {
       type: String,
+      default: "",
     },
     logo: {
       type: String,
+      default: "",
     },
     backdrop: {
       type: String,
+      default: "",
     },
     isVerified: { type: Boolean, default: false },
     isPartner: { type: Boolean, default: false },

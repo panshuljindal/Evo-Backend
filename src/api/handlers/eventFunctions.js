@@ -62,7 +62,7 @@ async function getAllEvents(req, res, next) {
     if (req.query.type && req.query.type.length != 0)
       query.eventType = req.query.type;
     if (req.query.club && req.query.club.length != 0)
-      query.club = req.query.club;
+      query.clubId = req.query.club;
     const events = await Event.find(query, {
       name: 1,
       poster: 1,
@@ -133,12 +133,6 @@ async function getPopularEvents(req, res, next) {
             $push: {
               name: "$name",
               poster: "$poster",
-              likes: "$likes",
-              timestamp: "$timestamp",
-              clubId: "$clubId",
-              clubName: "$clubName",
-              price: "$price",
-              eventType: "$eventType",
               eventId: "$_id",
             },
           },
