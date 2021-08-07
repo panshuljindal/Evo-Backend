@@ -98,7 +98,9 @@ async function getEventById(req, res, next) {
   try {
     if (!isValidObjectId(req.params.id))
       throw { error: "Please provide a valid event id" };
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id)
+      .populate({ path: "clubId", select: "logo" })
+      .exec();
     if (event) res.status(200).send({ event });
     else res.status(404).send({ message: "Event does not exist" });
   } catch (error) {
