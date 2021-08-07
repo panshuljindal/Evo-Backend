@@ -25,7 +25,7 @@ const eventSchema = mongoose.Schema(
     },
     eventCost: { type: Number, default: 0 },
     clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club", default: "" },
-    likes: { type: Number, default: 0, default: "" },
+    likes: { type: Number, default: 0 },
     timestamp: { type: Number, default: 0 },
     duration: { type: Number, default: 1 },
     registrationLink: { type: String, default: "" },
