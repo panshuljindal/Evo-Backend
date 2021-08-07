@@ -193,7 +193,19 @@ async function getSavedEvents(req, res, next) {
       if (!isValidObjectId(e))
         throw { error: "array contains invalid object ids" };
     });
-    const events = await Event.find({ _id: { $in: req.body.events } });
+    const events = await Event.find(
+      { _id: { $in: req.body.events } },
+      {
+        name: 1,
+        poster: 1,
+        likes: 1,
+        clubId: 1,
+        clubName: 1,
+        eventType: 1,
+      }
+    )
+      .populate({ path: "clubId", select: "logo" })
+      .exec();
     res.status(200).send(events);
   } catch (error) {
     console.log(error);
