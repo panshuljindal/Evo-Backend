@@ -162,6 +162,44 @@ async function searchCombined(req, res, next) {
     console.log(error);
   }
 }
+
+async function getEventByClub(req, res, next) {
+  try {
+    if (!isValidObjectId(req.params.id))
+      throw { error: "Please provide a valid club id" };
+    const club = await Club.findById(req.params.id)
+      .populate({ path: "events" })
+      .exec();
+
+    if (club) {
+      const data = club.events;
+      const mdata = await Event.aggregate([
+        { $match: { clubId: club._id } },
+        { $group: { _id: "$eventType", count: { $sum: 1 } } },
+      ]);
+      res.status(200).send({ data: data, metadata: mdata });
+    } else res.status(404).send({ message: "Event does not exist" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+}
+
+async function getSavedEvents(req, res, next) {
+  try {
+    if (req.body.events.length == 0 || !req.body.events)
+      throw "No events saved";
+    req.body.events.forEach((e) => {
+      if (!isValidObjectId(e))
+        throw { error: "array contains invalid object ids" };
+    });
+    const events = await Event.find({ _id: { $in: req.body.events } });
+    res.status(200).send(events);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+}
 module.exports = {
   createEvent,
   getAllEvents,
@@ -169,4 +207,6 @@ module.exports = {
   getPopularEvents,
   getEventById,
   searchCombined,
+  getEventByClub,
+  getSavedEvents,
 };

@@ -3,11 +3,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const express = require("express");
 const Combined = require("../../models/combined");
-const { error } = require("console");
 const app = express();
 const mailgun = require("mailgun-js");
 require("dotenv").config();
 const cloudinary = require("cloudinary").v2;
+const { isValidObjectId } = require("mongoose");
 cloudinary.config({
   cloud_name: String(process.env.cloud_name),
   api_key: String(process.env.api_key),
@@ -227,11 +227,22 @@ async function updatePassword(req, res, next) {
     );
   } catch (error) {
     console.log(error);
-    res.status(400).send({ err });
+    res.status(400).send({ error: error });
   }
 }
 
-
+async function getParticularClub(req, res, next) {
+  try {
+    if (!isValidObjectId(req.params.id)) throw "Please provide a valid club id";
+    const club = await Club.findById(req.params.id)
+      .populate({ path: "events" })
+      .exec();
+    res.status(200).send(club);
+  } catch (error) {
+    console.log(error)
+    res.status(400).send(error);
+  }
+}
 
 module.exports = {
   signupFunction,
@@ -239,4 +250,5 @@ module.exports = {
   verifyEmail,
   passwordReset,
   updatePassword,
+  getParticularClub,
 };
