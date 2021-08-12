@@ -40,6 +40,7 @@ async function createEvent(req, res, next) {
       eventName: createdEvent.name,
       clubId: createdEvent.clubId,
       eventType: createdEvent.eventType,
+      price: createdEvent.price,
     };
     const newObject = new Combined(combinedData);
     await newObject.save();

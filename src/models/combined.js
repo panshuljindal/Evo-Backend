@@ -18,6 +18,7 @@ const combinedSchema = mongoose.Schema({
   timestamp: { type: Number, default: 0 },
   clubLogo: { type: String, default: "" },
   clubBackdrop: { type: String, default: "" },
+  price: { type: Number, default: 0 },
 });
 
 module.exports = mongoose.model("Combined", combinedSchema);
