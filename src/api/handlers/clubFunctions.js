@@ -239,7 +239,7 @@ async function getParticularClub(req, res, next) {
       .exec();
     res.status(200).send(club);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(400).send(error);
   }
 }

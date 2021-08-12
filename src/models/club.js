@@ -6,6 +6,7 @@ const clubSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    tagline: { type: String, default: "" },
     email: {
       type: String,
       required: true,
