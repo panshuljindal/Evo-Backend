@@ -2,7 +2,7 @@ const Event = require("../../models/event");
 const Club = require("../../models/club");
 const Combined = require("../../models/combined");
 const cloudinary = require("cloudinary").v2;
-const { isValidObjectId } = require("mongoose");
+const { isValidObjectId, Mongoose, Types } = require("mongoose");
 require("dotenv").config();
 cloudinary.config({
   cloud_name: String(process.env.cloud_name),
@@ -39,7 +39,6 @@ async function createEvent(req, res, next) {
       type: 2,
       eventName: createdEvent.name,
       clubId: createdEvent.clubId,
-      eventType: createdEvent.eventType,
       price: createdEvent.price,
     };
     const newObject = new Combined(combinedData);
@@ -55,15 +54,18 @@ async function getAllEvents(req, res, next) {
     if (req.query.paid && req.query.paid.length != 0)
       query.isPaid = req.query.paid;
     if (req.query.gravitas && req.query.gravitas.length != 0)
-      query.isGravitas = req.query.gravitas;
-    if (req.query.riviera && req.query.riviera.length != 0)
-      query.isRiviera = req.query.riviera;
-    if (req.query.hack && req.query.hack.length != 0)
-      query.isHack = req.query.hack;
-    if (req.query.type && req.query.type.length != 0)
-      query.eventType = req.query.type;
-    if (req.query.club && req.query.club.length != 0)
-      query.clubId = req.query.club;
+      query.eventType = "Gravitas";
+    else if (req.query.riviera && req.query.riviera.length != 0)
+      query.eventType = "Riviera";
+    else if (req.query.hack && req.query.hack.length != 0)
+      query.eventType = "Hackathon";
+    else if (req.query.workshop && req.query.workshop.length != 0)
+      query.eventType = "Workshop";
+    else if (req.query.speaker && req.query.speaker.length != 0)
+      query.eventType = "Speaker";
+    else if (req.query.cultural && req.query.cultural.length != 0)
+      query.eventType = "Cultural";
+    if (req.query.ngo && req.query.ngo.length != 0) query.eventType = "NGO";
     const events = await Event.find(query, {
       name: 1,
       poster: 1,
@@ -75,7 +77,19 @@ async function getAllEvents(req, res, next) {
       .populate({ path: "clubId", select: "logo" })
       .exec();
     const metadata = await Event.aggregate([
-      { $group: { _id: "$eventType", count: { $sum: 1 } } },
+      {
+        $unwind: {
+          path: "$eventType",
+        },
+      },
+      {
+        $group: {
+          _id: "$eventType",
+          count: {
+            $sum: 1,
+          },
+        },
+      },
     ]);
     res.status(200).send({ data: events, metadata: metadata });
   } catch (error) {
@@ -127,6 +141,11 @@ async function getPopularEvents(req, res, next) {
         },
       },
       {
+        $unwind: {
+          path: "$eventType",
+        },
+      },
+      {
         $match: { isPartner: true },
       },
       {
@@ -170,14 +189,33 @@ async function getEventByClub(req, res, next) {
   try {
     if (!isValidObjectId(req.params.id))
       throw { error: "Please provide a valid club id" };
-    const club = await Club.findById(req.params.id)
-      .populate({ path: "events" })
-      .exec();
-
-    if (club) {
-      const data = club.events;
+    var query = { clubId: req.params.id };
+    if (req.query.paid && req.query.paid.length != 0)
+      query.isPaid = req.query.paid;
+    if (req.query.gravitas && req.query.gravitas.length != 0)
+      query.eventType = "Gravitas";
+    else if (req.query.riviera && req.query.riviera.length != 0)
+      query.eventType = "Riviera";
+    else if (req.query.hack && req.query.hack.length != 0)
+      query.eventType = "Hackathon";
+    else if (req.query.workshop && req.query.workshop.length != 0)
+      query.eventType = "Workshop";
+    else if (req.query.speaker && req.query.speaker.length != 0)
+      query.eventType = "Speaker";
+    else if (req.query.cultural && req.query.cultural.length != 0)
+      query.eventType = "Cultural";
+    else if (req.query.ngo && req.query.ngo.length != 0)
+      query.eventType = "NGO";
+    const events = await Event.find(query);
+    if (events) {
+      const data = events;
       const mdata = await Event.aggregate([
-        { $match: { clubId: club._id } },
+        {
+          $unwind: {
+            path: "$eventType",
+          },
+        },
+        { $match: { clubId: Types.ObjectId(req.params.id) } },
         { $group: { _id: "$eventType", count: { $sum: 1 } } },
       ]);
       res.status(200).send({ data: data, metadata: mdata });

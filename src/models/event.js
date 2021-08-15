@@ -9,19 +9,20 @@ const eventSchema = mongoose.Schema(
     clubName: { type: String, default: "" },
     videoLink: { type: String, default: "" },
     isPaid: { type: Boolean, default: false },
-    eventType: {
-      type: String,
-      enum: [
-        "Gravitas",
-        "Riviera",
-        "Hackathon",
-        "Workshop",
-        "Speaker",
-        "Cultural",
-        "NGO",
-      ],
-      default: "Technical",
-    },
+    eventType: [
+      {
+        type: String,
+        enum: [
+          "Gravitas",
+          "Riviera",
+          "Hackathon",
+          "Workshop",
+          "Speaker",
+          "Cultural",
+          "NGO",
+        ],
+      },
+    ],
     eventCost: { type: Number, default: 0 },
     clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club", default: "" },
     likes: { type: Number, default: 0 },
