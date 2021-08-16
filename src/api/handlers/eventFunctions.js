@@ -53,19 +53,8 @@ async function getAllEvents(req, res, next) {
     var query = {};
     if (req.query.paid && req.query.paid.length != 0)
       query.isPaid = req.query.paid;
-    if (req.query.gravitas && req.query.gravitas.length != 0)
-      query.eventType = "Gravitas";
-    else if (req.query.riviera && req.query.riviera.length != 0)
-      query.eventType = "Riviera";
-    else if (req.query.hack && req.query.hack.length != 0)
-      query.eventType = "Hackathon";
-    else if (req.query.workshop && req.query.workshop.length != 0)
-      query.eventType = "Workshop";
-    else if (req.query.speaker && req.query.speaker.length != 0)
-      query.eventType = "Speaker";
-    else if (req.query.cultural && req.query.cultural.length != 0)
-      query.eventType = "Cultural";
-    if (req.query.ngo && req.query.ngo.length != 0) query.eventType = "NGO";
+    if (req.query.type && req.query.type.length != 0 && req.query.type != "all")
+      query.eventType = req.query.type;
     const events = await Event.find(query, {
       name: 1,
       poster: 1,
@@ -192,21 +181,9 @@ async function getEventByClub(req, res, next) {
     var query = { clubId: req.params.id };
     if (req.query.paid && req.query.paid.length != 0)
       query.isPaid = req.query.paid;
-    if (req.query.gravitas && req.query.gravitas.length != 0)
-      query.eventType = "Gravitas";
-    else if (req.query.riviera && req.query.riviera.length != 0)
-      query.eventType = "Riviera";
-    else if (req.query.hack && req.query.hack.length != 0)
-      query.eventType = "Hackathon";
-    else if (req.query.workshop && req.query.workshop.length != 0)
-      query.eventType = "Workshop";
-    else if (req.query.speaker && req.query.speaker.length != 0)
-      query.eventType = "Speaker";
-    else if (req.query.cultural && req.query.cultural.length != 0)
-      query.eventType = "Cultural";
-    else if (req.query.ngo && req.query.ngo.length != 0)
-      query.eventType = "NGO";
-    const events = await Event.find(query);
+    if (req.query.type && req.query.type.length != 0 && req.query.type != "all")
+      query.eventType = req.query.type;
+    const events = await Event.find(query).select("-eventType");
     if (events) {
       const data = events;
       const mdata = await Event.aggregate([
