@@ -55,6 +55,7 @@ async function getAllEvents(req, res, next) {
       query.isPaid = req.query.paid;
     if (req.query.type && req.query.type.length != 0 && req.query.type != "all")
       query.eventType = req.query.type;
+    var page = req.query.page;
     const events = await Event.find(query, {
       name: 1,
       poster: 1,
@@ -64,6 +65,8 @@ async function getAllEvents(req, res, next) {
       eventType: 1,
     })
       .populate({ path: "clubId", select: "logo" })
+      .skip(page * 10)
+      .limit(10)
       .exec();
     const metadata = await Event.aggregate([
       {
@@ -161,12 +164,15 @@ async function getPopularEvents(req, res, next) {
 async function searchCombined(req, res, next) {
   try {
     let sk = req.body.input;
+    var page = req.query.page;
     const data = await Combined.find({
       $or: [
         { eventName: { $regex: sk, $options: "i" } },
         { clubName: { $regex: sk, $options: "i" } },
       ],
-    });
+    })
+      .skip(page * 10)
+      .limit(10);
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send(error);
