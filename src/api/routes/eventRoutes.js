@@ -10,14 +10,15 @@ const {
   getSavedEvents,
 } = require("../handlers/eventFunctions");
 const clubCheck = require("../middleware/clubCheck");
+const deviceCheck = require("../middleware/deviceCheck");
 const router = express.Router();
 
 router.post("/create", clubCheck, createEvent);
-router.get("/", getAllEvents);
-router.put("/like", likeEvent);
-router.get("/popular", getPopularEvents);
-router.get("/get/:id", getEventById);
-router.post("/search", searchCombined);
-router.get("/club/:id", getEventByClub);
-router.post("/saved", getSavedEvents);
+router.get("/", deviceCheck, getAllEvents);
+router.put("/like", deviceCheck, likeEvent);
+router.get("/popular", deviceCheck, getPopularEvents);
+router.get("/get/:id", deviceCheck, getEventById);
+router.post("/search", deviceCheck, searchCombined);
+router.get("/club/:id", deviceCheck, getEventByClub);
+router.post("/saved", deviceCheck, getSavedEvents);
 module.exports = router;
