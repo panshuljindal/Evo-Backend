@@ -165,14 +165,27 @@ async function searchCombined(req, res, next) {
   try {
     let sk = req.body.input;
     var page = req.query.page;
-    const data = await Combined.find({
-      $or: [
-        { eventName: { $regex: sk, $options: "i" } },
-        { clubName: { $regex: sk, $options: "i" } },
-      ],
-    })
-      .skip(page * 10)
-      .limit(10);
+    if (req.query.type && (req.query.type == 1 || req.query.type == 2)) {
+      data = await Combined.find({
+        type: req.query.type,
+        $or: [
+          { eventName: { $regex: sk, $options: "i" } },
+          { clubName: { $regex: sk, $options: "i" } },
+        ],
+      })
+        .skip(page * 10)
+        .limit(10);
+    } else {
+      data = await Combined.find({
+        $or: [
+          { eventName: { $regex: sk, $options: "i" } },
+          { clubName: { $regex: sk, $options: "i" } },
+        ],
+      })
+        .skip(page * 10)
+        .limit(10);
+    }
+
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send(error);
