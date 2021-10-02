@@ -64,7 +64,7 @@ async function getAllEvents(req, res, next) {
       clubName: 1,
       eventType: 1,
     })
-      .populate({ path: "clubId", select: "logo" })
+      .populate({ path: "clubId", select: "logo isPartner" })
       .skip(page * 10)
       .limit(10)
       .exec();
@@ -101,12 +101,24 @@ async function likeEvent(req, res, next) {
   }
 }
 
+async function dislikeEvent(req, res, next) {
+  try {
+    if (!req.body.eventId || req.body.eventId.length == 0) {
+      throw { error: "Please provide a valid event id" };
+    }
+    await Event.findByIdAndUpdate(req.body.eventId, { $inc: { likes: -1 } });
+    res.status(200).send({ message: "Likes updated!" });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+
 async function getEventById(req, res, next) {
   try {
     if (!isValidObjectId(req.params.id))
       throw { error: "Please provide a valid event id" };
     const event = await Event.findById(req.params.id)
-      .populate({ path: "clubId", select: "logo" })
+      .populate({ path: "clubId", select: "logo isPartner" })
       .exec();
     if (event) res.status(200).send({ event });
     else res.status(404).send({ message: "Event does not exist" });
@@ -258,4 +270,5 @@ module.exports = {
   searchCombined,
   getEventByClub,
   getSavedEvents,
+  dislikeEvent
 };

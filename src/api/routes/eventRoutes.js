@@ -8,6 +8,7 @@ const {
   searchCombined,
   getEventByClub,
   getSavedEvents,
+  dislikeEvent
 } = require("../handlers/eventFunctions");
 const clubCheck = require("../middleware/clubCheck");
 const deviceCheck = require("../middleware/deviceCheck");
@@ -16,6 +17,7 @@ const router = express.Router();
 router.post("/create", clubCheck, createEvent);
 router.get("/", deviceCheck, getAllEvents);
 router.put("/like", deviceCheck, likeEvent);
+router.put("/dislike", deviceCheck, dislikeEvent);
 router.get("/popular", deviceCheck, getPopularEvents);
 router.get("/get/:id", deviceCheck, getEventById);
 router.post("/search", deviceCheck, searchCombined);
