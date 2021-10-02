@@ -235,7 +235,7 @@ async function getParticularClub(req, res, next) {
   try {
     if (!isValidObjectId(req.params.id)) throw "Please provide a valid club id";
     const club = await Club.findById(req.params.id)
-      .populate("events", "-eventType")
+      .populate("events", "name poster timestamp eventCost clubName")
       .exec();
     res.status(200).send(club);
   } catch (error) {
