@@ -214,7 +214,7 @@ async function getEventByClub(req, res, next) {
       query.isPaid = req.query.paid;
     if (req.query.type && req.query.type.length != 0 && req.query.type != "all")
       query.eventType = req.query.type;
-    const events = await Event.find(query).select("-eventType");
+    const events = await Event.find(query).select("name poster timestamp eventCost clubName");
     if (events) {
       const data = events;
       const mdata = await Event.aggregate([
