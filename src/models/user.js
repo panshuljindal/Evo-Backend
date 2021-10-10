@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 
 const userSchema = mongoose.Schema(
   {
-    uuid: { type: String, required: true },
     likedEvents: [
       {
         type: mongoose.Schema.Types.ObjectId,

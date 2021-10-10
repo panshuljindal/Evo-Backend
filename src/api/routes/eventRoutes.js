@@ -16,6 +16,7 @@ const {
   dislikeEventNew,
   interestedEventNew,
   disInterestedEventNew,
+  registerDevice,
 } = require("../handlers/userFunctions");
 const clubCheck = require("../middleware/clubCheck");
 const deviceCheck = require("../middleware/deviceCheck");
@@ -30,7 +31,8 @@ router.get("/get/:id", deviceCheck, getEventById);
 router.post("/search", deviceCheck, searchCombined);
 router.get("/club/:id", deviceCheck, getEventByClub);
 router.post("/saved", deviceCheck, getSavedEvents);
-router.get("/getData/:uuid", deviceCheck, getData);
+router.post("/newDevice", deviceCheck, registerDevice);
+router.get("/getData/:id", deviceCheck, getData);
 router.post("/likeNew", deviceCheck, likeEventNew);
 router.post("/dislikeNew", deviceCheck, dislikeEventNew);
 router.post("/interested", deviceCheck, interestedEventNew);
