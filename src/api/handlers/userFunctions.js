@@ -23,7 +23,7 @@ async function registerDevice(req, res, next) {
     const uData = new User(uD);
     const createdUser = await uData.save();
     if (createdUser._id) {
-      res.status(200).send(createdUser);
+      res.status(200).send({ id: createdUser._id });
     } else res.status(400).send({ message: "error creating user" });
   } catch (error) {
     res.status(500).send(error);
