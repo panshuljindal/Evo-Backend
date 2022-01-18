@@ -9,6 +9,7 @@ const {
   getEventByClub,
   getSavedEvents,
   dislikeEvent,
+  deleteEvent,
 } = require("../handlers/eventFunctions");
 const {
   getData,
