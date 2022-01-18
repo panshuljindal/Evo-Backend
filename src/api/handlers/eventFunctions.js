@@ -214,7 +214,9 @@ async function getEventByClub(req, res, next) {
       query.isPaid = req.query.paid;
     if (req.query.type && req.query.type.length != 0 && req.query.type != "all")
       query.eventType = req.query.type;
-    const events = await Event.find(query).select("name poster timestamp eventCost clubName");
+    const events = await Event.find(query).select(
+      "name poster timestamp eventCost clubName"
+    );
     if (events) {
       const data = events;
       const mdata = await Event.aggregate([
@@ -261,6 +263,27 @@ async function getSavedEvents(req, res, next) {
     res.status(400).send(error);
   }
 }
+
+async function deleteEvent(req, res, next) {
+  try {
+    if (!isValidObjectId(req.params.eventId))
+      throw "Please provide a valid event id";
+
+    const deletedEvent = await Event.findOneAndDelete({
+      _id: req.params.eventId,
+      clubId: req.club._id,
+    });
+    if (!deletedEvent) throw "Event does not exist";
+    res.status(200).send({ message: "Event deleted" });
+    await Combined.findOneAndDelete({ eventId: req.params.eventId });
+    await Club.findByIdAndUpdate(req.club._id, {
+      $pull: { events: req.params.eventId },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+}
 module.exports = {
   createEvent,
   getAllEvents,
@@ -270,5 +293,6 @@ module.exports = {
   searchCombined,
   getEventByClub,
   getSavedEvents,
-  dislikeEvent
+  dislikeEvent,
+  deleteEvent,
 };

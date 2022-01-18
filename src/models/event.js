@@ -32,6 +32,8 @@ const eventSchema = mongoose.Schema(
     meetingLink: { type: String, default: "" },
     poster: { type: String, default: "" },
     venue: { type: String, default: "" },
+    views: { type: Number, default: 0 },
+    vtopRegistrations: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

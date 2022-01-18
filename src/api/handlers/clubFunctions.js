@@ -244,6 +244,30 @@ async function getParticularClub(req, res, next) {
   }
 }
 
+async function getClubevents(req, res, next) {
+  try {
+    if (!isValidObjectId(req.params.clubId))
+      throw "Please provide a valid club id";
+
+    if (req.query.likes == 1) {
+      var club = await Club.findById(req.params.clubId)
+        .populate("events", "-createdAt", null, { sort: { likes: -1 } })
+        .exec();
+    } else if (req.query.views == 1) {
+      var club = await Club.findById(req.params.clubId)
+        .populate("events", "-createdAt", null, { sort: { views: -1 } })
+        .exec();
+    } else
+      var club = await Club.findById(req.params.clubId)
+        .populate("events")
+        .exec();
+    res.status(200).send(club.events);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+}
+
 module.exports = {
   signupFunction,
   loginFunction,
@@ -251,4 +275,5 @@ module.exports = {
   passwordReset,
   updatePassword,
   getParticularClub,
+  getClubevents,
 };
