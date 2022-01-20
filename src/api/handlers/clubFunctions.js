@@ -67,15 +67,21 @@ async function signupFunction(req, res, next) {
       };
 
       //creating jwt token
-      let f = 0;
-      jwt.sign(payload, process.env.JWT_KEY, (err, token) => {
-        if (err) {
-          res.status(400).send({ Error: err });
-          f++;
-        } else {
-          res.status(200).send({ "auth-token": token });
-        }
-      });
+      // let f = 0;
+      // jwt.sign(payload, process.env.JWT_KEY, (err, token) => {
+      //   if (err) {
+      //     res.status(400).send({ Error: err });
+      //     f++;
+      //   } else {
+      //     res.status(200).send({ "auth-token": token });
+      //   }
+      // });
+      res
+        .status(200)
+        .send({
+          message:
+            "Account created successfully.Please contact Team Evo to verify the same.",
+        });
       if (f == 0) {
         let combinedData = {
           poster: clubSignup.poster,
@@ -156,54 +162,54 @@ async function verifyEmail(req, res, next) {
   }
 }
 
-async function passwordReset(req, res, next) {
-  const club = await Club.findOne({ email: req.body.email }).then(
-    async (club) => {
-      if (club == null) res.status(401).send({ message: "club not found!" });
-      else {
-        var resetdata = {
-          clubid: club._id,
-          browser: req.headers["club-agent"],
-          ip: getIP(req).clientIp,
-          requestTime: Date.now(),
-        };
+// async function passwordReset(req, res, next) {
+//   const club = await Club.findOne({ email: req.body.email }).then(
+//     async (club) => {
+//       if (club == null) res.status(401).send({ message: "club not found!" });
+//       else {
+//         var resetdata = {
+//           clubid: club._id,
+//           browser: req.headers["club-agent"],
+//           ip: getIP(req).clientIp,
+//           requestTime: Date.now(),
+//         };
 
-        const reset = new Reset({ ...resetdata });
-        const rest = await reset.save();
+//         const reset = new Reset({ ...resetdata });
+//         const rest = await reset.save();
 
-        club.resetExpires = Date.now() + 300000;
+//         club.resetExpires = Date.now() + 300000;
 
-        await club.save();
+//         await club.save();
 
-        var api_key = process.env.MAILGUN_API_KEY;
-        var domain = process.env.MAILGUN_DOMAIN;
-        const mg = mailgun({ apiKey: api_key, domain: domain });
+//         var api_key = process.env.MAILGUN_API_KEY;
+//         var domain = process.env.MAILGUN_DOMAIN;
+//         const mg = mailgun({ apiKey: api_key, domain: domain });
 
-        var data = {
-          from: "GlobalCert <me@samples.mailgun.org>",
-          to: req.body.email,
-          subject: "Password Reset",
-          html: `Click on the link to update your password: `,
-        };
+//         var data = {
+//           from: "GlobalCert <me@samples.mailgun.org>",
+//           to: req.body.email,
+//           subject: "Password Reset",
+//           html: `Click on the link to update your password: `,
+//         };
 
-        mg.messages().send(data, function (error, body) {
-          try {
-            console.log("Email successfully sent!");
-            res.status(200).send({
-              message: "Email has been sent",
-              everify: club.everify,
-            });
-          } catch (error) {
-            console.log(error);
-            res.status(400).send({
-              message: "Error in sending Email!",
-            });
-          }
-        });
-      }
-    }
-  );
-}
+//         mg.messages().send(data, function (error, body) {
+//           try {
+//             console.log("Email successfully sent!");
+//             res.status(200).send({
+//               message: "Email has been sent",
+//               everify: club.everify,
+//             });
+//           } catch (error) {
+//             console.log(error);
+//             res.status(400).send({
+//               message: "Error in sending Email!",
+//             });
+//           }
+//         });
+//       }
+//     }
+//   );
+// }
 
 async function updatePassword(req, res, next) {
   try {

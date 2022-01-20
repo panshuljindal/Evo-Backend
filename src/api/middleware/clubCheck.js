@@ -13,9 +13,13 @@ module.exports = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_KEY);
     req.club = decoded;
-
-    if ((await Club.findById(req.club._id)) !== null) {
-      next();
+    const c = await Club.findById(req.club._id);
+    if (c !== null) {
+      if (c.isEmailVerified == false) {
+        res.status(401).send({
+          message: "Auth Failed! Account not verified",
+        });
+      } else next();
     } else {
       res.status(403).send({
         message: "club not found!",
