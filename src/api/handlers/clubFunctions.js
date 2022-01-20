@@ -278,7 +278,6 @@ module.exports = {
   signupFunction,
   loginFunction,
   verifyEmail,
-  passwordReset,
   updatePassword,
   getParticularClub,
   getClubevents,
