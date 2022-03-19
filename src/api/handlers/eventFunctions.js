@@ -48,6 +48,51 @@ async function createEvent(req, res, next) {
   }
 }
 
+async function updateEvent(req, res, next) {
+  try {
+    if (!isValidObjectId(req.params.eventId))
+      throw "Please provide a valid event id";
+    var poster = "";
+    let eventData = {};
+    if (req.body.poster && req.body.poster.length != 0) {
+      await cloudinary.uploader.upload(
+        "data:image/jpeg;base64," + req.body.poster,
+        function (error, result) {
+          if (result) poster = result.url;
+          else throw error;
+        }
+      );
+      eventData = {
+        ...req.body,
+        poster: poster,
+      };
+    } else {
+      eventData = {
+        ...req.body,
+      };
+    }
+    const updatedEvent = await Event.findByIdAndUpdate(req.params.eventId, {
+      $set: eventData,
+    });
+    res.status(200).send(updatedEvent);
+    let combinedData = {
+      eventId: updatedEvent._id,
+      poster: updatedEvent.poster,
+      timestamp: updatedEvent.timestamp,
+      type: 2,
+      eventName: updatedEvent.name,
+      clubId: updatedEvent.clubId,
+      price: updatedEvent.price,
+    };
+    await Combined.findOneAndUpdate(
+      { eventId: updatedEvent._id },
+      combinedData
+    );
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+
 async function getAllEvents(req, res, next) {
   try {
     var query = {};
@@ -295,4 +340,5 @@ module.exports = {
   getSavedEvents,
   dislikeEvent,
   deleteEvent,
+  updateEvent,
 };
