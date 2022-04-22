@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
       next();
     } else {
       res.status(400).send({
-        message: "Not authorised!",
+        message: "Not Authorised!",
       });
     }
   } catch (error) {
