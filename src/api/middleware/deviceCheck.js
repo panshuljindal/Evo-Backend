@@ -10,8 +10,8 @@ module.exports = async (req, res, next) => {
         message: "Auth Failed!",
       });
     }
-
     const decoded = jwt.verify(token, process.env.SECURITY_KEY);
+    console.log(decoded)
 
     if (decoded) {
       next();
@@ -21,6 +21,7 @@ module.exports = async (req, res, next) => {
       });
     }
   } catch (error) {
+    console.log(error)
     return res.status(401).json({
       message: "Token Invalid!",
     });

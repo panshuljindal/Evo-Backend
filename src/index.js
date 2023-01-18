@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Event = require("./models/event")
 const app = require("./api/app");
 require("dotenv").config();
 const uri = process.env.MONGODB_URI;
@@ -19,6 +20,7 @@ const PORT = process.env.PORT || 5500;
 app.listen(PORT, () => {
   console.log(`Server is connected to port ${PORT}`);
 });
+
 
 // var task = cron.schedule('*/25 * * * *', () => {
 //   var request = require('request');
