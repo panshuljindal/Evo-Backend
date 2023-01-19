@@ -255,20 +255,21 @@ async function getClubevents(req, res, next) {
   try {
     if (!isValidObjectId(req.params.clubId))
       throw "Please provide a valid club id";
-
-    if (req.query.likes == 1) {
-      var club = await Club.findById(req.params.clubId)
+      var likedEvents = await Club.findById(req.params.clubId)
         .populate("events", "-createdAt", null, { sort: { likes: -1 } })
         .exec();
-    } else if (req.query.views == 1) {
-      var club = await Club.findById(req.params.clubId)
+      var viewedEvents = await Club.findById(req.params.clubId)
         .populate("events", "-createdAt", null, { sort: { views: -1 } })
         .exec();
-    } else
-      var club = await Club.findById(req.params.clubId)
+      var upcomingEvents = await Club.findById(req.params.clubId)
         .populate("events")
         .exec();
-    res.status(200).send(club.events);
+    res.status(200).send({
+      upcomingEvents: upcomingEvents.events,
+      likedEvents: likedEvents.events,
+      viewedEvents: viewedEvents.events
+
+    });
   } catch (error) {
     console.log(error);
     res.status(400).send(error);
