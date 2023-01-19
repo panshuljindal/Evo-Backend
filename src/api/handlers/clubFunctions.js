@@ -136,6 +136,7 @@ async function loginFunction(req, res, next) {
       );
       res.header("auth-token", token).json({
         token: token,
+        id: club._id,
         message: "You have successfully logged in!",
       });
     }
