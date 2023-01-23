@@ -165,6 +165,12 @@ async function getEventById(req, res, next) {
     const event = await Event.findById(req.params.id)
       .populate({ path: "clubId", select: "logo isPartner" })
       .exec();
+    const viewedEvent = await Event.findByIdAndUpdate(req.params.id,{
+      $inc:{
+        views: 1
+      }
+    })
+    
     if (event) res.status(200).send({ event });
     else res.status(404).send({ message: "Event does not exist" });
   } catch (error) {
