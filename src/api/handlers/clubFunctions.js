@@ -265,9 +265,9 @@ async function getClubevents(req, res, next) {
         .populate("events")
         .exec();
     res.status(200).send({
-      upcomingEvents: upcomingEvents.events,
-      likedEvents: likedEvents.events,
-      viewedEvents: viewedEvents.events
+      upcomingEvents: upcomingEvents.events.slice(0,2),
+      likedEvents: likedEvents.events.slice(0,2),
+      viewedEvents: viewedEvents.events.slice(0,2)
 
     });
   } catch (error) {
