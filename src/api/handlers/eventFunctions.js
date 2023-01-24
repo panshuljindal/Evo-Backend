@@ -14,7 +14,7 @@ async function createEvent(req, res, next) {
     var poster = "";
     if (req.body.poster && req.body.poster.length != 0)
       await cloudinary.uploader.upload(
-        "data:image/jpeg;base64," + req.body.poster,
+        req.body.poster,
         function (error, result) {
           if (result) poster = result.url;
           else throw error;
@@ -56,7 +56,7 @@ async function updateEvent(req, res, next) {
     let eventData = {};
     if (req.body.poster && req.body.poster.length != 0) {
       await cloudinary.uploader.upload(
-        "data:image/jpeg;base64," + req.body.poster,
+        req.body.poster,
         function (error, result) {
           if (result) poster = result.url;
           else throw error;
