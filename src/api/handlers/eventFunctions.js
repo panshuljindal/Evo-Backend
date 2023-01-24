@@ -319,11 +319,12 @@ async function deleteEvent(req, res, next) {
   try {
     if (!isValidObjectId(req.params.eventId))
       throw "Please provide a valid event id";
-
+    console.log(req.params.eventId)
     const deletedEvent = await Event.findOneAndDelete({
       _id: req.params.eventId,
       clubId: req.club._id,
     });
+    console.log(deletedEvent)
     if (!deletedEvent) throw "Event does not exist";
     res.status(200).send({ message: "Event deleted" });
     await Combined.findOneAndDelete({ eventId: req.params.eventId });

@@ -39,6 +39,6 @@ router.post("/likeNew", deviceCheck, likeEventNew);
 router.post("/dislikeNew", deviceCheck, dislikeEventNew);
 router.post("/interested", deviceCheck, interestedEventNew);
 router.post("/disinterest", deviceCheck, disInterestedEventNew);
-router.delete("/delete/:id", clubCheck, deleteEvent);
+router.delete("/delete/:eventId", clubCheck, deleteEvent);
 router.put("/updateEvent/:eventId", clubCheck, updateEvent);
 module.exports = router;
