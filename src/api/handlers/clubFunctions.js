@@ -65,23 +65,10 @@ async function signupFunction(req, res, next) {
         _id: clubSignup._id,
         name: clubSignup.name,
       };
-
-      //creating jwt token
-      // let f = 0;
-      // jwt.sign(payload, process.env.JWT_KEY, (err, token) => {
-      //   if (err) {
-      //     res.status(400).send({ Error: err });
-      //     f++;
-      //   } else {
-      //     res.status(200).send({ "auth-token": token });
-      //   }
-      // });
-      res
-        .status(200)
-        .send({
-          message:
-            "Account created successfully.Please contact Team Evo to verify the same.",
-        });
+      res.status(200).send({
+        message:
+          "Account created successfully.Please contact Team Evo to verify the same.",
+      });
       if (f == 0) {
         let combinedData = {
           poster: clubSignup.poster,
@@ -255,20 +242,19 @@ async function getClubevents(req, res, next) {
   try {
     if (!isValidObjectId(req.params.clubId))
       throw "Please provide a valid club id";
-      var likedEvents = await Club.findById(req.params.clubId)
-        .populate("events", "-createdAt", null, { sort: { likes: -1 } })
-        .exec();
-      var viewedEvents = await Club.findById(req.params.clubId)
-        .populate("events", "-createdAt", null, { sort: { views: -1 } })
-        .exec();
-      var upcomingEvents = await Club.findById(req.params.clubId)
-        .populate("events")
-        .exec();
+    var likedEvents = await Club.findById(req.params.clubId)
+      .populate("events", "-createdAt", null, { sort: { likes: -1 } })
+      .exec();
+    var viewedEvents = await Club.findById(req.params.clubId)
+      .populate("events", "-createdAt", null, { sort: { views: -1 } })
+      .exec();
+    var upcomingEvents = await Club.findById(req.params.clubId)
+      .populate("events")
+      .exec();
     res.status(200).send({
       upcomingEvents: upcomingEvents.events,
       likedEvents: likedEvents.events,
-      viewedEvents: viewedEvents.events
-
+      viewedEvents: viewedEvents.events,
     });
   } catch (error) {
     console.log(error);

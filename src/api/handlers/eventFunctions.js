@@ -14,10 +14,10 @@ async function createEvent(req, res, next) {
     var poster = "";
     if (req.body.poster && req.body.poster.length != 0)
       await cloudinary.uploader.upload(
-        req.body.poster,
+        "data:image/jpeg;base64," + req.body.poster,
         function (error, result) {
           if (result) poster = result.url;
-          else throw error;
+          else console.log("error");
         }
       );
     let eventData = {
@@ -165,12 +165,12 @@ async function getEventById(req, res, next) {
     const event = await Event.findById(req.params.id)
       .populate({ path: "clubId", select: "logo isPartner" })
       .exec();
-    const viewedEvent = await Event.findByIdAndUpdate(req.params.id,{
-      $inc:{
-        views: 1
-      }
-    })
-    
+    const viewedEvent = await Event.findByIdAndUpdate(req.params.id, {
+      $inc: {
+        views: 1,
+      },
+    });
+
     if (event) res.status(200).send({ event });
     else res.status(404).send({ message: "Event does not exist" });
   } catch (error) {
@@ -319,12 +319,12 @@ async function deleteEvent(req, res, next) {
   try {
     if (!isValidObjectId(req.params.eventId))
       throw "Please provide a valid event id";
-    console.log(req.params.eventId)
+    console.log(req.params.eventId);
     const deletedEvent = await Event.findOneAndDelete({
       _id: req.params.eventId,
       clubId: req.club._id,
     });
-    console.log(deletedEvent)
+    console.log(deletedEvent);
     if (!deletedEvent) throw "Event does not exist";
     res.status(200).send({ message: "Event deleted" });
     await Combined.findOneAndDelete({ eventId: req.params.eventId });
