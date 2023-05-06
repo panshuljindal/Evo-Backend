@@ -133,7 +133,60 @@ async function loginFunction(req, res, next) {
     });
   }
 }
+async function editProfile(req, res, next) {
+  try {
+    const id = req.params.clubId;
+    if (!id) {
+      res.status(404).send("ClubID not found");
+    }
+    const club = await Club.findById(id);
+    if (!club) {
+      res.status(404).send("Club not found");
+    }
+    let logo = club.logo;
+    let backdrop = club.backdrop;
+    if (req.body.logo && req.body.logo.length != 0) {
+      await cloudinary.uploader.upload(
+        "data:image/jpeg;base64," + req.body.logo,
+        function (error, result) {
+          if (result) logo = result.url;
+          else flag++;
+        }
+      );
+    } else {
+    }
 
+    if (req.body.backdrop && req.body.backdrop.length != 0)
+      await cloudinary.uploader.upload(
+        "data:image/jpeg;base64," + req.body.backdrop,
+        function (error, result) {
+          if (result) backdrop = result.url;
+          else flag++;
+        }
+      );
+    const eventData = {
+      ...req.body,
+      logo,
+      backdrop,
+    };
+    const updatedClub = await Club.findByIdAndUpdate(club._id, {
+      $set: eventData,
+    });
+    res.status(200).send(updatedClub);
+    let combinedData = {
+      poster: updatedClub.poster,
+      type: 1,
+      clubName: updatedClub.clubName,
+      clubId: updatedClub._id,
+      clubLogo: updatedClub.logo,
+      clubBackdrop: updatedClub.backdrop,
+      clubName: updatedClub.name,
+    };
+    await Combined.updateOne({ clubId: club._id }, combinedData);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
 async function verifyEmail(req, res, next) {
   try {
     await Club.findOneAndUpdate(
@@ -269,4 +322,5 @@ module.exports = {
   updatePassword,
   getParticularClub,
   getClubevents,
+  editProfile,
 };
