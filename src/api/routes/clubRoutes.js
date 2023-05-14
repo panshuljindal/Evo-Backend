@@ -13,5 +13,5 @@ router.post("/signup", signupFunction);
 router.post("/login", loginFunction);
 router.get("/get/:id", getParticularClub);
 router.get("/events/:clubId", getClubevents);
-router.get("/editClubProfile/:clubId", clubCheck, editProfile);
+router.post("/editClubProfile/:clubId", clubCheck, editProfile);
 module.exports = router;
