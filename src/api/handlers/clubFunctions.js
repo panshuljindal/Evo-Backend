@@ -155,7 +155,6 @@ async function editProfile(req, res, next) {
       );
     } else {
     }
-
     if (req.body.backdrop && req.body.backdrop.length != 0)
       await cloudinary.uploader.upload(
         "data:image/jpeg;base64," + req.body.backdrop,
