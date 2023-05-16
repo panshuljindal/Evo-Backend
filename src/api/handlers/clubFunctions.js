@@ -146,21 +146,18 @@ async function editProfile(req, res, next) {
     let logo = club.logo;
     let backdrop = club.backdrop;
     if (req.body.logo && req.body.logo.length != 0) {
-      await cloudinary.uploader.upload(
-        "data:image/jpeg;base64," + req.body.logo,
-        function (error, result) {
-          if (result) logo = result.url;
-          else flag++;
-        }
-      );
+      await cloudinary.uploader.upload(req.body.logo, function (error, result) {
+        if (result) logo = result.url;
+        else console.log(error);
+      });
     } else {
     }
     if (req.body.backdrop && req.body.backdrop.length != 0)
       await cloudinary.uploader.upload(
-        "data:image/jpeg;base64," + req.body.backdrop,
+        req.body.backdrop,
         function (error, result) {
           if (result) backdrop = result.url;
-          else flag++;
+          else console.log(error);
         }
       );
     const eventData = {
