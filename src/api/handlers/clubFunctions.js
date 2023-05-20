@@ -65,10 +65,6 @@ async function signupFunction(req, res, next) {
         _id: clubSignup._id,
         name: clubSignup.name,
       };
-      res.status(200).send({
-        message:
-          "Account created successfully.Please contact Team Evo to verify the same.",
-      });
       let combinedData = {
         poster: clubSignup.poster,
         type: 1,
@@ -80,6 +76,11 @@ async function signupFunction(req, res, next) {
       };
       const newObject = new Combined(combinedData);
       await newObject.save();
+
+      res.status(200).send({
+        message:
+          "Account created successfully.Please contact Team Evo to verify the same.",
+      });
     }
   } catch (err) {
     console.log(err);
@@ -170,7 +171,6 @@ async function editProfile(req, res, next) {
     });
     const clubData = await Club.findById(club._id);
     console.log(clubData);
-    res.status(200).send(clubData);
     let combinedData = {
       poster: updatedClub.poster,
       type: 1,
@@ -181,6 +181,7 @@ async function editProfile(req, res, next) {
       clubName: updatedClub.name,
     };
     await Combined.updateOne({ clubId: club._id }, combinedData);
+    res.status(200).send(clubData);
   } catch (error) {
     res.status(500).send(error);
   }

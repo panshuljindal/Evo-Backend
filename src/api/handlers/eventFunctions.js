@@ -74,7 +74,6 @@ async function updateEvent(req, res, next) {
     const updatedEvent = await Event.findByIdAndUpdate(req.params.eventId, {
       $set: eventData,
     });
-    res.status(200).send(updatedEvent);
     let combinedData = {
       eventId: updatedEvent._id,
       poster: updatedEvent.poster,
@@ -88,6 +87,7 @@ async function updateEvent(req, res, next) {
       { eventId: updatedEvent._id },
       combinedData
     );
+    res.status(200).send(updatedEvent);
   } catch (error) {
     res.status(500).send(error);
   }
