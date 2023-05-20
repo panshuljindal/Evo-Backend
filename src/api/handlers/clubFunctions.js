@@ -69,19 +69,17 @@ async function signupFunction(req, res, next) {
         message:
           "Account created successfully.Please contact Team Evo to verify the same.",
       });
-      if (f == 0) {
-        let combinedData = {
-          poster: clubSignup.poster,
-          type: 1,
-          clubName: clubSignup.clubName,
-          clubId: clubSignup._id,
-          clubLogo: clubSignup.logo,
-          clubBackdrop: clubSignup.backdrop,
-          clubName: clubSignup.name,
-        };
-        const newObject = new Combined(combinedData);
-        await newObject.save();
-      }
+      let combinedData = {
+        poster: clubSignup.poster,
+        type: 1,
+        clubName: clubSignup.clubName,
+        clubId: clubSignup._id,
+        clubLogo: clubSignup.logo,
+        clubBackdrop: clubSignup.backdrop,
+        clubName: clubSignup.name,
+      };
+      const newObject = new Combined(combinedData);
+      await newObject.save();
     }
   } catch (err) {
     console.log(err);
